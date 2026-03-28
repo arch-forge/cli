@@ -1,0 +1,6 @@
+name: testapp
+module_path: github.com/your-org/testapp
+go_version: "1.23"
+arch: hexagonal
+variant: modular
+modules: []
