@@ -38,7 +38,7 @@ checksum:
 release:
   github:
     owner: arch-forge
-    name: arch_forge
+    name: cli
   draft: false
   prerelease: auto
   name_template: "{{.Tag}}"
@@ -65,42 +65,6 @@ changelog:
       - "^ci:"
       - "Merge pull request"
 
-dockers:
-  - image_templates:
-      - "arch-forge/cli:{{ .Version }}-amd64"
-      - "ghcr.io/arch-forge/cli:{{ .Version }}-amd64"
-    dockerfile: Dockerfile
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--build-arg=VERSION={{ .Version }}"
-    goarch: amd64
-    goos: linux
-
-  - image_templates:
-      - "arch-forge/cli:{{ .Version }}-arm64"
-      - "ghcr.io/arch-forge/cli:{{ .Version }}-arm64"
-    dockerfile: Dockerfile
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/arm64"
-      - "--build-arg=VERSION={{ .Version }}"
-    goarch: arm64
-    goos: linux
-
-docker_manifests:
-  - name_template: "arch-forge/cli:{{ .Version }}"
-    image_templates:
-      - "arch-forge/cli:{{ .Version }}-amd64"
-      - "arch-forge/cli:{{ .Version }}-arm64"
-  - name_template: "arch-forge/cli:latest"
-    image_templates:
-      - "arch-forge/cli:{{ .Version }}-amd64"
-      - "arch-forge/cli:{{ .Version }}-arm64"
-  - name_template: "ghcr.io/arch-forge/cli:{{ .Version }}"
-    image_templates:
-      - "ghcr.io/arch-forge/cli:{{ .Version }}-amd64"
-      - "ghcr.io/arch-forge/cli:{{ .Version }}-arm64"
 
 brews:
   - name: arch-forge
