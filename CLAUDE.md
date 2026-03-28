@@ -4,8 +4,6 @@
 
 arch_forge is a CLI tool that generates Go project structures based on proven architectural patterns (Hexagonal, Clean Architecture, DDD, Standard Layout, Modular Monolith, CQRS+ES, Microservice). Each architecture supports two variants: `classic` (by-the-book) and `modular` (organized by business domain).
 
-Full specification: [PRD.md](./PRD.md)
-
 
 ## Mandatory Rules
 
