@@ -1,0 +1,13 @@
+package inbound
+
+import (
+	"context"
+
+	"{{ .Module }}/internal/domain"
+)
+
+// UserService is the driving port defining user-related use cases.
+type UserService interface {
+	GetUser(ctx context.Context, id string) (*domain.User, error)
+	CreateUser(ctx context.Context, user *domain.User) error
+}
