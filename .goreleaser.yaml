@@ -39,6 +39,8 @@ release:
   github:
     owner: arch-forge
     name: cli
+  extra_files:
+    - glob: install.sh
   draft: false
   prerelease: auto
   name_template: "{{.Tag}}"

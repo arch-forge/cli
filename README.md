@@ -21,6 +21,22 @@ What sets arch_forge apart is its `doctor` command, which validates architecture
 
 ## Installation
 
+**curl** (macOS / Linux)
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/arch-forge/cli/main/install.sh | sh
+```
+
+Install a specific version or to a custom directory:
+
+```bash
+# Specific version
+curl -sSfL https://raw.githubusercontent.com/arch-forge/cli/main/install.sh | sh -s -- v1.0.0
+
+# Custom install directory (no sudo required)
+INSTALL_DIR=$HOME/.local/bin curl -sSfL https://raw.githubusercontent.com/arch-forge/cli/main/install.sh | sh
+```
+
 **Homebrew** (macOS / Linux)
 
 ```bash
@@ -31,12 +47,6 @@ brew install arch-forge/tap/arch-forge
 
 ```bash
 go install github.com/arch-forge/cli/cmd/archforge@latest
-```
-
-**Docker**
-
-```bash
-docker run --rm -v $(pwd):/workspace arch-forge/cli:latest init myapp --arch hexagonal
 ```
 
 **Scoop** (Windows)
