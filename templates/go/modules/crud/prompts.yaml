@@ -1,0 +1,9 @@
+prompts:
+  - key: entity_name
+    type: input
+    message: "Entity name (PascalCase, e.g. Product)"
+    default: "Entity"
+  - key: table_name
+    type: input
+    message: "Database table name (snake_case plural)"
+    default: "entities"

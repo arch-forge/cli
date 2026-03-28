@@ -1,0 +1,23 @@
+prompts:
+  - key: driver
+    type: select
+    message: "Select database driver"
+    options:
+      - label: "PostgreSQL (pgx)"
+        value: postgres
+      - label: "MySQL"
+        value: mysql
+      - label: "SQLite"
+        value: sqlite
+    default: postgres
+  - key: migrations
+    type: select
+    message: "Select migration tool"
+    options:
+      - label: "goose"
+        value: goose
+      - label: "golang-migrate"
+        value: golang-migrate
+      - label: "none"
+        value: none
+    default: goose

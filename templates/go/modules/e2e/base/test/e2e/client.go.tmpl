@@ -1,0 +1,88 @@
+package e2e
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"testing"
+)
+
+// Client is a typed HTTP test client for end-to-end tests.
+type Client struct {
+	baseURL    string
+	httpClient *http.Client
+	t          *testing.T
+}
+
+// NewClient creates a new e2e test client targeting baseURL.
+func NewClient(t *testing.T, baseURL string) *Client {
+	t.Helper()
+	return &Client{
+		baseURL:    baseURL,
+		httpClient: &http.Client{},
+		t:          t,
+	}
+}
+
+// Get performs a GET request and decodes the response body into v.
+func (c *Client) Get(path string, v interface{}) *http.Response {
+	c.t.Helper()
+	resp, err := c.httpClient.Get(c.baseURL + path)
+	if err != nil {
+		c.t.Fatalf("GET %s: %v", path, err)
+	}
+	if v != nil {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
+			c.t.Fatalf("GET %s: decode response: %v", path, err)
+		}
+	}
+	return resp
+}
+
+// Post performs a POST request with JSON body and decodes the response into v.
+func (c *Client) Post(path string, body, v interface{}) *http.Response {
+	c.t.Helper()
+	data, err := json.Marshal(body)
+	if err != nil {
+		c.t.Fatalf("POST %s: marshal body: %v", path, err)
+	}
+	resp, err := c.httpClient.Post(c.baseURL+path, "application/json", bytes.NewReader(data))
+	if err != nil {
+		c.t.Fatalf("POST %s: %v", path, err)
+	}
+	if v != nil {
+		defer resp.Body.Close()
+		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
+			c.t.Fatalf("POST %s: decode response: %v", path, err)
+		}
+	}
+	return resp
+}
+
+// RequireStatus fails the test if the response status code does not match expected.
+func (c *Client) RequireStatus(resp *http.Response, expected int) {
+	c.t.Helper()
+	if resp.StatusCode != expected {
+		body, _ := io.ReadAll(resp.Body)
+		c.t.Fatalf("expected status %d, got %d: %s", expected, resp.StatusCode, string(body))
+	}
+}
+
+// BaseURL returns the configured base URL.
+func (c *Client) BaseURL() string { return c.baseURL }
+
+// HealthCheck verifies the service is reachable.
+func (c *Client) HealthCheck() error {
+	resp, err := c.httpClient.Get(c.baseURL + "/health")
+	if err != nil {
+		return fmt.Errorf("health check: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("health check: status %d", resp.StatusCode)
+	}
+	return nil
+}

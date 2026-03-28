@@ -1,0 +1,10 @@
+prompts:
+  - key: provider
+    message: "Cloud provider"
+    type: select
+    options: [aws, gcp, azure]
+    default: aws
+  - key: region
+    message: "Cloud region"
+    type: input
+    default: "us-east-1"

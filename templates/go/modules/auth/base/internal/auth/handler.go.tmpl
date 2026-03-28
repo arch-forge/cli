@@ -1,0 +1,42 @@
+package auth
+
+import (
+	"encoding/json"
+	"net/http"
+)
+
+// LoginRequest represents a login payload.
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// LoginResponse returns an access token on success.
+type LoginResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int    `json:"expires_in"`
+}
+
+// LoginHandler handles POST /auth/login.
+// Replace with your own authentication logic.
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	var req LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// TODO: validate credentials against your user store.
+	// This is a placeholder — replace with real authentication logic.
+	token, err := GenerateToken("user-id-placeholder", req.Email)
+	if err != nil {
+		http.Error(w, "failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(LoginResponse{
+		AccessToken: token,
+		ExpiresIn:   {{ index .Options "token_expiry_minutes" | default "15" }} * 60,
+	})
+}

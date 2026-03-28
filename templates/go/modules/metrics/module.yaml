@@ -1,0 +1,42 @@
+name: metrics
+version: 1.0.0
+description: "Prometheus metrics: HTTP middleware, request counters, latency histograms, and /metrics endpoint"
+category: observability
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+
+go_dependencies:
+  - package: github.com/prometheus/client_golang
+    version: v1.20.0
+
+options:
+  - name: metrics_path
+    type: string
+    default: "/metrics"
+    description: "HTTP path for the Prometheus metrics endpoint"
+  - name: namespace
+    type: string
+    default: ""
+    description: "Prometheus metric namespace prefix"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:routes"
+    template: "hooks/main.go.tmpl"
+    optional: true

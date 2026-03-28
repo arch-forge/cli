@@ -1,0 +1,23 @@
+name: makefile
+version: 1.0.0
+description: "Makefile with standard targets: build, test, lint, run, migrate, generate"
+category: devops
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - modular_monolith
+  - cqrs
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+options: []
+patches: []

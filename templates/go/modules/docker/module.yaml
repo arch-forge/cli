@@ -1,0 +1,31 @@
+name: docker
+version: 1.0.0
+description: "Multi-stage Dockerfile and docker-compose for development"
+category: devops
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - modular_monolith
+  - cqrs
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: database
+    required: false
+
+go_dependencies: []
+
+options:
+  - name: base_image
+    type: string
+    default: "alpine:3.21"
+    description: "Base image for the final stage"
+
+patches: []

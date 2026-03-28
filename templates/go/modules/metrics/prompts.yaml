@@ -1,0 +1,9 @@
+prompts:
+  - key: metrics_path
+    type: input
+    message: "Metrics endpoint path"
+    default: "/metrics"
+  - key: namespace
+    type: input
+    message: "Prometheus metric namespace (optional)"
+    default: ""

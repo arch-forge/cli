@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package {{ .Project.Name }}.v1;
+
+option go_package = "{{ .Module }}/gen/proto/{{ .Project.Name }}/v1;{{ .Project.Name }}v1";
+
+// {{ index .Options "service_name" | default "AppService" }} is the primary service interface.
+service {{ index .Options "service_name" | default "AppService" }} {
+  // HealthCheck returns the service status.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+  string version = 2;
+}

@@ -1,0 +1,23 @@
+prompts:
+  - key: level
+    type: select
+    message: "Default log level"
+    options:
+      - label: "info"
+        value: info
+      - label: "debug"
+        value: debug
+      - label: "warn"
+        value: warn
+      - label: "error"
+        value: error
+    default: info
+  - key: format
+    type: select
+    message: "Log output format"
+    options:
+      - label: "JSON (structured)"
+        value: json
+      - label: "Text (human-readable)"
+        value: text
+    default: json

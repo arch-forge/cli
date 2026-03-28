@@ -1,0 +1,90 @@
+package healthcheck
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"sync"
+	"time"
+)
+
+// Checker is a function that returns nil when a dependency is healthy.
+type Checker func(ctx context.Context) error
+
+// Registry holds all registered health checkers.
+type Registry struct {
+	mu       sync.RWMutex
+	checkers map[string]Checker
+}
+
+// New creates an empty health check Registry.
+func New() *Registry {
+	return &Registry{checkers: make(map[string]Checker)}
+}
+
+// Register adds a named health checker.
+func (r *Registry) Register(name string, checker Checker) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.checkers[name] = checker
+}
+
+type checkResult struct {
+	Status string `json:"status"`
+	Error  string `json:"error,omitempty"`
+}
+
+type healthResponse struct {
+	Status string                 `json:"status"`
+	Checks map[string]checkResult `json:"checks,omitempty"`
+}
+
+// HealthHandler returns a handler that runs all registered checkers.
+func (r *Registry) HealthHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
+		defer cancel()
+
+		r.mu.RLock()
+		checkers := make(map[string]Checker, len(r.checkers))
+		for k, v := range r.checkers {
+			checkers[k] = v
+		}
+		r.mu.RUnlock()
+
+		results := make(map[string]checkResult, len(checkers))
+		allOK := true
+		for name, check := range checkers {
+			if err := check(ctx); err != nil {
+				results[name] = checkResult{Status: "unhealthy", Error: err.Error()}
+				allOK = false
+			} else {
+				results[name] = checkResult{Status: "healthy"}
+			}
+		}
+
+		status := "healthy"
+		code := http.StatusOK
+		if !allOK {
+			status = "unhealthy"
+			code = http.StatusServiceUnavailable
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
+		json.NewEncoder(w).Encode(healthResponse{Status: status, Checks: results})
+	}
+}
+
+// LiveHandler always returns 200 OK (process is alive).
+func LiveHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "alive"})
+	}
+}
+
+// ReadyHandler returns 200 when all readiness checks pass, 503 otherwise.
+func (r *Registry) ReadyHandler() http.HandlerFunc {
+	return r.HealthHandler()
+}

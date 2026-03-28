@@ -1,0 +1,25 @@
+name: mocks
+version: 1.0.0
+description: "Mock generation with mockery — auto-generates test doubles from interfaces"
+category: testing
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+
+options: []
+
+patches: []

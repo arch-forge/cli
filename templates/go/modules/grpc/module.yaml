@@ -1,0 +1,44 @@
+name: grpc
+version: 1.0.0
+description: "gRPC server setup with buf configuration, interceptors, and protobuf stubs"
+category: api
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: true
+
+go_dependencies:
+  - package: google.golang.org/grpc
+    version: v1.71.0
+  - package: google.golang.org/protobuf
+    version: v1.36.5
+
+options:
+  - name: grpc_port
+    type: string
+    default: "50051"
+    description: "gRPC server port"
+  - name: service_name
+    type: string
+    default: "AppService"
+    description: "gRPC service name in PascalCase"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

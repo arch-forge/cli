@@ -1,0 +1,56 @@
+package tracing
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/trace"
+)
+
+// Init initialises the global OpenTelemetry tracer provider.
+// Call the returned shutdown function before process exit.
+func Init(ctx context.Context) (shutdown func(context.Context) error, err error) {
+	serviceName := os.Getenv("{{ index .Options "service_name_env" | default "SERVICE_NAME" }}")
+	if serviceName == "" {
+		serviceName = "{{ .Project.Name }}"
+	}
+
+	endpoint := os.Getenv("{{ index .Options "otlp_endpoint_env" | default "OTLP_ENDPOINT" }}")
+	if endpoint == "" {
+		endpoint = "localhost:4318"
+	}
+
+	exp, err := otlptracehttp.New(ctx,
+		otlptracehttp.WithEndpoint(endpoint),
+		otlptracehttp.WithInsecure(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("tracing: create exporter: %w", err)
+	}
+
+	res, err := resource.New(ctx,
+		resource.WithAttributes(semconv.ServiceName(serviceName)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("tracing: create resource: %w", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(res),
+	)
+	otel.SetTracerProvider(tp)
+
+	return tp.Shutdown, nil
+}
+
+// Tracer returns a named tracer from the global provider.
+func Tracer(name string) trace.Tracer {
+	return otel.Tracer(name)
+}

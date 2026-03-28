@@ -1,0 +1,29 @@
+name: e2e
+version: 1.0.0
+description: "End-to-end test scaffold with HTTP test client and environment setup helpers"
+category: testing
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+  - name: testkit
+    required: false
+
+go_dependencies: []
+
+options: []
+
+patches: []

@@ -1,0 +1,48 @@
+name: auth
+version: 1.0.0
+description: "JWT authentication middleware, token generation and validation, refresh token support"
+category: security
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+  - name: logging
+    required: true
+
+go_dependencies:
+  - package: github.com/golang-jwt/jwt/v5
+    version: v5.2.1
+
+options:
+  - name: jwt_secret_env
+    type: string
+    default: "JWT_SECRET"
+    description: "Environment variable name for JWT secret"
+  - name: token_expiry_minutes
+    type: string
+    default: "15"
+    description: "Access token expiry in minutes"
+  - name: refresh_expiry_hours
+    type: string
+    default: "168"
+    description: "Refresh token expiry in hours"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

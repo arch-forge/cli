@@ -1,0 +1,27 @@
+name: testkit
+version: 1.0.0
+description: "Test fixtures, factories, and testcontainers for integration testing"
+category: testing
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: database
+    required: false
+
+go_dependencies: []
+
+options: []
+
+patches: []

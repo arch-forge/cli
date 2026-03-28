@@ -1,0 +1,56 @@
+package metrics
+
+import (
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	namespace = "{{ index .Options "namespace" }}"
+
+	requestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: namespace,
+		Name:      "http_requests_total",
+		Help:      "Total number of HTTP requests by method, path, and status code.",
+	}, []string{"method", "path", "status"})
+
+	requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: namespace,
+		Name:      "http_request_duration_seconds",
+		Help:      "HTTP request latency distribution.",
+		Buckets:   prometheus.DefBuckets,
+	}, []string{"method", "path"})
+)
+
+// Handler returns the Prometheus HTTP handler for the /metrics endpoint.
+func Handler() http.Handler {
+	return promhttp.Handler()
+}
+
+// Middleware records request count and duration for each HTTP request.
+func Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rw := &responseWriter{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rw, r)
+		duration := time.Since(start).Seconds()
+		status := strconv.Itoa(rw.status)
+		requestsTotal.WithLabelValues(r.Method, r.URL.Path, status).Inc()
+		requestDuration.WithLabelValues(r.Method, r.URL.Path).Observe(duration)
+	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	status int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.status = code
+	rw.ResponseWriter.WriteHeader(code)
+}

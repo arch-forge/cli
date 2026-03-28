@@ -1,0 +1,65 @@
+package auth
+
+import (
+	"errors"
+	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
+// Claims represents the JWT payload.
+type Claims struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	jwt.RegisteredClaims
+}
+
+var (
+	ErrInvalidToken = errors.New("invalid token")
+	ErrExpiredToken  = errors.New("token has expired")
+)
+
+func jwtSecret() []byte {
+	secret := os.Getenv("{{ index .Options "jwt_secret_env" | default "JWT_SECRET" }}")
+	if secret == "" {
+		secret = "change-me-in-production"
+	}
+	return []byte(secret)
+}
+
+// GenerateToken creates a signed JWT for the given user.
+func GenerateToken(userID, email string) (string, error) {
+	expiry := {{ index .Options "token_expiry_minutes" | default "15" }}
+	claims := Claims{
+		UserID: userID,
+		Email:  email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expiry) * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret())
+}
+
+// ParseToken validates and parses a JWT string.
+func ParseToken(tokenStr string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrInvalidToken
+		}
+		return jwtSecret(), nil
+	})
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrExpiredToken
+		}
+		return nil, ErrInvalidToken
+	}
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, ErrInvalidToken
+	}
+	return claims, nil
+}

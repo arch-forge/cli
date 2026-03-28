@@ -1,0 +1,44 @@
+name: healthcheck
+version: 1.0.0
+description: "Liveness, readiness, and health HTTP endpoints for Kubernetes and load balancers"
+category: observability
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+
+go_dependencies: []
+
+options:
+  - name: health_path
+    type: string
+    default: "/health"
+    description: "Path for the combined health endpoint"
+  - name: ready_path
+    type: string
+    default: "/ready"
+    description: "Path for the readiness endpoint"
+  - name: live_path
+    type: string
+    default: "/live"
+    description: "Path for the liveness endpoint"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:routes"
+    template: "hooks/main.go.tmpl"
+    optional: true

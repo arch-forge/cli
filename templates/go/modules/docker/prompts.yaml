@@ -1,0 +1,5 @@
+prompts:
+  - key: base_image
+    type: input
+    message: "Base image for production stage"
+    default: "alpine:3.21"

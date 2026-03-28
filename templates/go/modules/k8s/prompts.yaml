@@ -1,0 +1,13 @@
+prompts:
+  - key: namespace
+    message: "Kubernetes namespace"
+    type: input
+    default: "default"
+  - key: replicas
+    message: "Initial replica count"
+    type: input
+    default: "2"
+  - key: image_repo
+    message: "Container image repository"
+    type: input
+    default: ""

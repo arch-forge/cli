@@ -1,0 +1,54 @@
+package testkit
+
+import (
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"testing"
+	"time"
+)
+
+// RandomID generates a random hex ID for test fixtures.
+func RandomID() string {
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+// RandomEmail generates a unique test email address.
+func RandomEmail() string {
+	return fmt.Sprintf("test-%s@example.com", RandomID())
+}
+
+// RandomString generates a random alphanumeric string of length n.
+func RandomString(n int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+	b := make([]byte, n)
+	_, _ = rand.Read(b)
+	for i := range b {
+		b[i] = charset[int(b[i])%len(charset)]
+	}
+	return string(b)
+}
+
+// RequireNoError fails the test immediately if err is non-nil.
+func RequireNoError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// Clock is a deterministic clock for tests.
+type Clock struct {
+	now time.Time
+}
+
+// NewClock creates a test clock fixed at the given time.
+func NewClock(t time.Time) *Clock { return &Clock{now: t} }
+
+// Now returns the fixed time.
+func (c *Clock) Now() time.Time { return c.now }
+
+// Advance moves the clock forward by d.
+func (c *Clock) Advance(d time.Duration) { c.now = c.now.Add(d) }

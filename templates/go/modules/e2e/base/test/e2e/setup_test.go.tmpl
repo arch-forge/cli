@@ -1,0 +1,15 @@
+package e2e_test
+
+import (
+	"os"
+	"testing"
+)
+
+// TestMain sets up and tears down the e2e test environment.
+func TestMain(m *testing.M) {
+	// TODO: start your service here if needed, or point at a running environment.
+	// baseURL := os.Getenv("E2E_BASE_URL")
+	// if baseURL == "" { baseURL = "http://localhost:8080" }
+
+	os.Exit(m.Run())
+}

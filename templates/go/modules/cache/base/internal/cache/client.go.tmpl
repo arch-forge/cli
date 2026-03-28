@@ -1,0 +1,61 @@
+package cache
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+// DefaultTTL is the default cache entry expiry.
+const DefaultTTL = {{ index .Options "default_ttl_seconds" | default "300" }} * time.Second
+
+// Client wraps a Redis client with typed cache operations.
+type Client struct {
+	rdb *redis.Client
+}
+
+// New creates a new cache Client from the REDIS_URL environment variable.
+func New() (*Client, error) {
+	url := os.Getenv("{{ index .Options "redis_url_env" | default "REDIS_URL" }}")
+	if url == "" {
+		url = "redis://localhost:6379"
+	}
+
+	opts, err := redis.ParseURL(url)
+	if err != nil {
+		return nil, fmt.Errorf("cache: parse redis url: %w", err)
+	}
+
+	return &Client{rdb: redis.NewClient(opts)}, nil
+}
+
+// Set stores a value with the given key and TTL.
+func (c *Client) Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+	if ttl == 0 {
+		ttl = DefaultTTL
+	}
+	return c.rdb.Set(ctx, key, value, ttl).Err()
+}
+
+// Get retrieves a value by key. Returns redis.Nil if not found.
+func (c *Client) Get(ctx context.Context, key string) (string, error) {
+	return c.rdb.Get(ctx, key).Result()
+}
+
+// Delete removes a key from the cache.
+func (c *Client) Delete(ctx context.Context, key string) error {
+	return c.rdb.Del(ctx, key).Err()
+}
+
+// Ping checks connectivity to Redis.
+func (c *Client) Ping(ctx context.Context) error {
+	return c.rdb.Ping(ctx).Err()
+}
+
+// Close closes the Redis client connection.
+func (c *Client) Close() error {
+	return c.rdb.Close()
+}

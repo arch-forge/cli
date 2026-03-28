@@ -1,0 +1,40 @@
+name: cors
+version: 1.0.0
+description: "CORS middleware with configurable allowed origins, methods, and headers"
+category: security
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+
+go_dependencies: []
+
+options:
+  - name: allowed_origins
+    type: string
+    default: "*"
+    description: "Comma-separated list of allowed origins, or * for all"
+  - name: allowed_methods
+    type: string
+    default: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    description: "Comma-separated list of allowed HTTP methods"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:routes"
+    template: "hooks/main.go.tmpl"
+    optional: true

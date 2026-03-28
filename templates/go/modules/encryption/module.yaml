@@ -1,0 +1,29 @@
+name: encryption
+version: 1.0.0
+description: "AES-GCM symmetric encryption and PBKDF2 key derivation utilities"
+category: security
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+
+options:
+  - name: key_env
+    type: string
+    default: "ENCRYPTION_KEY"
+    description: "Environment variable for the 32-byte hex-encoded encryption key"
+
+patches: []

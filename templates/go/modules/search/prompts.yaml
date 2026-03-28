@@ -1,0 +1,14 @@
+prompts:
+  - key: backend
+    type: select
+    message: "Search backend"
+    options:
+      - label: "meilisearch (recommended)"
+        value: meilisearch
+      - label: "elasticsearch"
+        value: elasticsearch
+    default: meilisearch
+  - key: search_url_env
+    type: input
+    message: "Environment variable name for search URL"
+    default: "SEARCH_URL"

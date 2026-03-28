@@ -1,0 +1,5 @@
+prompts:
+  - key: allowed_origins
+    message: "Allowed CORS origins (comma-separated, or * for all)"
+    type: input
+    default: "*"

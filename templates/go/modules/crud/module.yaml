@@ -1,0 +1,35 @@
+name: crud
+version: 1.0.0
+description: "Full CRUD scaffolding for an entity — handler, service, repository, and migration"
+category: scaffold
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+  - name: database
+    required: true
+
+go_dependencies: []
+
+options:
+  - name: entity_name
+    type: string
+    default: "Entity"
+    description: "Entity name in PascalCase (e.g., Product)"
+  - name: table_name
+    type: string
+    default: "entities"
+    description: "Database table name (snake_case plural)"
+
+patches: []

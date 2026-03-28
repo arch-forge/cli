@@ -1,0 +1,9 @@
+prompts:
+  - key: service_name_env
+    type: input
+    message: "Environment variable for service name"
+    default: "SERVICE_NAME"
+  - key: otlp_endpoint_env
+    type: input
+    message: "Environment variable for OTLP endpoint"
+    default: "OTLP_ENDPOINT"

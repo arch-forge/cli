@@ -1,0 +1,43 @@
+name: api
+version: 1.0.0
+description: "REST API with router, middleware chain, error handling, and request validation"
+category: core
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - modular_monolith
+  - cqrs
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: false
+
+go_dependencies:
+  - package: github.com/go-chi/chi/v5
+    version: v5.2.1
+
+options:
+  - name: framework
+    type: select
+    values: [chi, stdlib]
+    default: chi
+    description: "HTTP framework to use"
+  - name: port
+    type: string
+    default: "8080"
+    description: "HTTP port to listen on"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:routes"
+    template: "hooks/router.go.tmpl"
+    optional: true

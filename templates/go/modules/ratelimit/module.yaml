@@ -1,0 +1,40 @@
+name: ratelimit
+version: 1.0.0
+description: "Token-bucket rate limiting middleware with per-IP and global limits"
+category: security
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: api
+    required: true
+
+go_dependencies: []
+
+options:
+  - name: requests_per_second
+    type: string
+    default: "100"
+    description: "Maximum requests per second per IP"
+  - name: burst
+    type: string
+    default: "20"
+    description: "Maximum burst size"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:routes"
+    template: "hooks/main.go.tmpl"
+    optional: true

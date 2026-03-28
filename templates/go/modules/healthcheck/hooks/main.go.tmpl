@@ -1,0 +1,5 @@
+// Register health check endpoints.
+health := healthcheck.New()
+mux.HandleFunc("{{ index .Options "health_path" | default "/health" }}", health.HealthHandler())
+mux.HandleFunc("{{ index .Options "ready_path" | default "/ready" }}", health.ReadyHandler())
+mux.HandleFunc("{{ index .Options "live_path" | default "/live" }}", healthcheck.LiveHandler())

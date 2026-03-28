@@ -1,0 +1,16 @@
+prompts:
+  - key: backend
+    type: select
+    message: "Storage backend"
+    options:
+      - label: "local (filesystem, development)"
+        value: local
+      - label: "s3 (AWS S3 or compatible)"
+        value: s3
+      - label: "gcs (Google Cloud Storage)"
+        value: gcs
+    default: local
+  - key: bucket_env
+    type: input
+    message: "Environment variable name for bucket"
+    default: "STORAGE_BUCKET"

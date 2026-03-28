@@ -1,0 +1,5 @@
+prompts:
+  - key: key_env
+    message: "Environment variable name for encryption key"
+    type: input
+    default: "ENCRYPTION_KEY"

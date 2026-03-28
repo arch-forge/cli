@@ -1,0 +1,90 @@
+package encryption
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+
+	"golang.org/x/crypto/pbkdf2"
+)
+
+var (
+	ErrInvalidKey    = errors.New("invalid encryption key: must be 32 bytes hex-encoded")
+	ErrDecryptFailed = errors.New("decryption failed: authentication tag mismatch")
+)
+
+// keyFromEnv reads the 32-byte AES key from the environment variable.
+func keyFromEnv() ([]byte, error) {
+	raw := os.Getenv("{{ index .Options "key_env" | default "ENCRYPTION_KEY" }}")
+	if raw == "" {
+		return nil, fmt.Errorf("encryption: %w: environment variable not set", ErrInvalidKey)
+	}
+	key, err := hex.DecodeString(raw)
+	if err != nil || len(key) != 32 {
+		return nil, ErrInvalidKey
+	}
+	return key, nil
+}
+
+// Encrypt encrypts plaintext using AES-256-GCM.
+// Returns the hex-encoded ciphertext (nonce prepended).
+func Encrypt(plaintext []byte) (string, error) {
+	key, err := keyFromEnv()
+	if err != nil {
+		return "", err
+	}
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", fmt.Errorf("encryption: create cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", fmt.Errorf("encryption: create GCM: %w", err)
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", fmt.Errorf("encryption: generate nonce: %w", err)
+	}
+	ciphertext := gcm.Seal(nonce, nonce, plaintext, nil)
+	return hex.EncodeToString(ciphertext), nil
+}
+
+// Decrypt decrypts a hex-encoded AES-256-GCM ciphertext.
+func Decrypt(hexCiphertext string) ([]byte, error) {
+	key, err := keyFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	data, err := hex.DecodeString(hexCiphertext)
+	if err != nil {
+		return nil, fmt.Errorf("encryption: decode hex: %w", err)
+	}
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, fmt.Errorf("encryption: create cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("encryption: create GCM: %w", err)
+	}
+	if len(data) < gcm.NonceSize() {
+		return nil, ErrDecryptFailed
+	}
+	nonce, ct := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+	plain, err := gcm.Open(nil, nonce, ct, nil)
+	if err != nil {
+		return nil, ErrDecryptFailed
+	}
+	return plain, nil
+}
+
+// DeriveKey derives a 32-byte AES key from a passphrase and salt using PBKDF2-SHA256.
+func DeriveKey(passphrase, salt string) []byte {
+	return pbkdf2.Key([]byte(passphrase), []byte(salt), 100_000, 32, sha256.New)
+}

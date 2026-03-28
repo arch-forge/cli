@@ -1,0 +1,10 @@
+// grpcSrv := grpc.NewServer()
+// lis, err := net.Listen("tcp", ":{{ .Options.grpc_port }}")
+// if err != nil { log.Fatalf("grpc listen: %v", err) }
+// go func() {
+// 	log.Printf("gRPC server listening on :%s", "{{ .Options.grpc_port }}")
+// 	if err := grpcSrv.Serve(lis); err != nil {
+// 		log.Fatalf("grpc serve: %v", err)
+// 	}
+// }()
+// defer grpcSrv.GracefulStop()

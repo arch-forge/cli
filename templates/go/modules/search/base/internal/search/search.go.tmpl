@@ -1,0 +1,72 @@
+package search
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
+)
+
+// Document represents a searchable document.
+type Document struct {
+	ID     string         `json:"id"`
+	Fields map[string]any `json:"fields"`
+}
+
+// SearchResult represents a single search hit.
+type SearchResult struct {
+	ID    string         `json:"id"`
+	Score float64        `json:"score"`
+	Data  map[string]any `json:"data"`
+}
+
+// Client defines the search service contract.
+type Client interface {
+	// Index adds or updates a document in the given index.
+	Index(ctx context.Context, index string, doc Document) error
+	// Search executes a full-text query and returns ranked results.
+	Search(ctx context.Context, index, query string, limit int) ([]SearchResult, error)
+	// Delete removes a document from the index.
+	Delete(ctx context.Context, index, id string) error
+}
+
+// memoryClient is a naive in-memory search client for testing.
+type memoryClient struct {
+	indexes map[string][]Document
+}
+
+// NewMemoryClient creates an in-memory search client for development.
+func NewMemoryClient() Client {
+	return &memoryClient{indexes: make(map[string][]Document)}
+}
+
+func (c *memoryClient) Index(_ context.Context, index string, doc Document) error {
+	c.indexes[index] = append(c.indexes[index], doc)
+	return nil
+}
+
+func (c *memoryClient) Search(_ context.Context, index, query string, limit int) ([]SearchResult, error) {
+	var results []SearchResult
+	q := strings.ToLower(query)
+	for _, doc := range c.indexes[index] {
+		raw, _ := json.Marshal(doc.Fields)
+		if strings.Contains(strings.ToLower(string(raw)), q) {
+			results = append(results, SearchResult{ID: doc.ID, Score: 1.0, Data: doc.Fields})
+			if len(results) >= limit {
+				break
+			}
+		}
+	}
+	return results, nil
+}
+
+func (c *memoryClient) Delete(_ context.Context, index, id string) error {
+	docs := c.indexes[index]
+	for i, d := range docs {
+		if d.ID == id {
+			c.indexes[index] = append(docs[:i], docs[i+1:]...)
+			return nil
+		}
+	}
+	return fmt.Errorf("search: document %q not found in index %q", id, index)
+}

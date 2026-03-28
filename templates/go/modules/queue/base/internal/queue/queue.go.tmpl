@@ -1,0 +1,63 @@
+package queue
+
+import (
+	"context"
+	"fmt"
+	"os"
+)
+
+// Message represents a queue message.
+type Message struct {
+	Subject string
+	Data    []byte
+	ID      string
+}
+
+// Handler processes an incoming queue message.
+type Handler func(ctx context.Context, msg Message) error
+
+// Queue defines the message queue contract.
+type Queue interface {
+	// Publish sends a message to the given subject.
+	Publish(ctx context.Context, subject string, data []byte) error
+	// Subscribe registers a handler for messages on the given subject.
+	Subscribe(ctx context.Context, subject string, handler Handler) error
+	// Close releases all queue resources.
+	Close() error
+}
+
+// queueURL reads the queue connection URL from the environment.
+func queueURL() string {
+	url := os.Getenv("{{ index .Options "queue_url_env" | default "QUEUE_URL" }}")
+	if url == "" {
+		return "nats://localhost:4222"
+	}
+	return url
+}
+
+// memoryQueue is an in-process queue for development and testing.
+type memoryQueue struct {
+	handlers map[string][]Handler
+}
+
+// NewMemoryQueue creates an in-memory queue suitable for testing.
+func NewMemoryQueue() Queue {
+	return &memoryQueue{handlers: make(map[string][]Handler)}
+}
+
+func (q *memoryQueue) Publish(ctx context.Context, subject string, data []byte) error {
+	msg := Message{Subject: subject, Data: data}
+	for _, h := range q.handlers[subject] {
+		if err := h(ctx, msg); err != nil {
+			return fmt.Errorf("queue: publish %q: %w", subject, err)
+		}
+	}
+	return nil
+}
+
+func (q *memoryQueue) Subscribe(_ context.Context, subject string, handler Handler) error {
+	q.handlers[subject] = append(q.handlers[subject], handler)
+	return nil
+}
+
+func (q *memoryQueue) Close() error { return nil }

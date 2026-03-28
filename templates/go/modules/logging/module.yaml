@@ -1,0 +1,40 @@
+name: logging
+version: 1.0.0
+description: "Structured logging with slog, log levels, and correlation IDs"
+category: observability
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - modular_monolith
+  - cqrs
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+
+options:
+  - name: level
+    type: select
+    values: [debug, info, warn, error]
+    default: info
+    description: "Default log level"
+  - name: format
+    type: select
+    values: [json, text]
+    default: json
+    description: "Log output format"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

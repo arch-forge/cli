@@ -1,0 +1,41 @@
+name: queue
+version: 1.0.0
+description: "Message queue client supporting RabbitMQ, NATS, and in-memory backends"
+category: infrastructure
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: false
+
+go_dependencies: []
+
+options:
+  - name: backend
+    type: select
+    values: [rabbitmq, nats, memory]
+    default: nats
+    description: "Queue backend to use"
+  - name: queue_url_env
+    type: string
+    default: "QUEUE_URL"
+    description: "Environment variable for queue connection URL"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

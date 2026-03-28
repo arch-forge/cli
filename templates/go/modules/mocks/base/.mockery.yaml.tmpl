@@ -1,0 +1,15 @@
+# mockery configuration — https://vektra.github.io/mockery/
+quiet: false
+disable-version-string: true
+with-expecter: true
+filename: "mock_{{"{{"}} .InterfaceName | snakecase {{"}}"}}.go"
+dir: "{{"{{"}} .SrcPkgName {{"}}"}}/mocks"
+packages:
+  {{ .Module }}/internal/port:
+    interfaces:
+      Generator:
+      TemplateRepository:
+      ConfigReader:
+      Analyzer:
+      FileSystemScanner:
+      GraphBuilder:

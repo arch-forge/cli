@@ -1,0 +1,34 @@
+name: terraform
+version: 1.0.0
+description: "Terraform infrastructure configuration for AWS, GCP, or Azure"
+category: devops
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+
+options:
+  - name: provider
+    type: select
+    values: [aws, gcp, azure]
+    default: aws
+    description: "Cloud provider"
+  - name: region
+    type: string
+    default: "us-east-1"
+    description: "Cloud provider region"
+
+patches: []

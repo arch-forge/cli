@@ -1,0 +1,6 @@
+prompts:
+  - key: provider
+    message: "CI provider"
+    type: select
+    options: [github, gitlab, bitbucket]
+    default: github

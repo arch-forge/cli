@@ -1,0 +1,51 @@
+BINARY_NAME={{ .Project.Name }}
+BUILD_DIR=./bin
+VERSION?=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+GOFLAGS?=
+
+.PHONY: build test lint run clean generate migrate-up migrate-down fmt vet
+
+## build: Compile the binary
+build:
+	go build $(GOFLAGS) -ldflags="-s -w -X main.Version=$(VERSION)" -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/...
+
+## test: Run all tests with race detector
+test:
+	go test ./... -v -race -coverprofile=coverage.out
+
+## lint: Run golangci-lint
+lint:
+	golangci-lint run ./...
+
+## fmt: Format all Go source files
+fmt:
+	gofmt -w .
+
+## vet: Run go vet
+vet:
+	go vet ./...
+
+## run: Build and run the application
+run: build
+	$(BUILD_DIR)/$(BINARY_NAME)
+
+## clean: Remove build artifacts
+clean:
+	rm -rf $(BUILD_DIR) coverage.out
+
+## generate: Run go generate
+generate:
+	go generate ./...
+
+## migrate-up: Apply pending database migrations
+migrate-up:
+	goose -dir ./migrations postgres "$(DATABASE_URL)" up
+
+## migrate-down: Roll back the last migration
+migrate-down:
+	goose -dir ./migrations postgres "$(DATABASE_URL)" down
+
+## help: Show this help message
+help:
+	@echo "Usage: make [target]"
+	@grep -E '^## [a-zA-Z_-]+:' $(MAKEFILE_LIST) | sed 's/## /  /' | column -t -s ':'

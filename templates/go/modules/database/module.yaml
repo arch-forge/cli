@@ -1,0 +1,44 @@
+name: database
+version: 1.0.0
+description: "Database connection, pool, migrations, and health check"
+category: infrastructure
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - modular_monolith
+  - cqrs
+  - microservice
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies:
+  - package: github.com/jackc/pgx/v5
+    version: v5.7.2
+  - package: github.com/pressly/goose/v3
+    version: v3.24.2
+
+options:
+  - name: driver
+    type: select
+    values: [postgres, mysql, sqlite]
+    default: postgres
+    description: "Database driver"
+  - name: migrations
+    type: select
+    values: [goose, golang-migrate, none]
+    default: goose
+    description: "Migration tool"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

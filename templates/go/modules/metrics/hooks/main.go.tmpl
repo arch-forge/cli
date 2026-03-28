@@ -1,0 +1,2 @@
+// Register Prometheus metrics endpoint.
+mux.Handle("{{ index .Options "metrics_path" | default "/metrics" }}", metrics.Handler())

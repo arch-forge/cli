@@ -1,0 +1,9 @@
+-- +migrate Up
+CREATE TABLE IF NOT EXISTS {{ index .Options "table_name" | default "entities" }} (
+    id         VARCHAR(32) PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- +migrate Down
+DROP TABLE IF EXISTS {{ index .Options "table_name" | default "entities" }};

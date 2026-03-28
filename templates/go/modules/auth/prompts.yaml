@@ -1,0 +1,9 @@
+prompts:
+  - key: jwt_secret_env
+    type: input
+    message: "Environment variable name for JWT secret"
+    default: "JWT_SECRET"
+  - key: token_expiry_minutes
+    type: input
+    message: "Access token expiry (minutes)"
+    default: "15"

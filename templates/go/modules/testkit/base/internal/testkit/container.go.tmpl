@@ -1,0 +1,41 @@
+package testkit
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"testing"
+
+	_ "github.com/lib/pq"
+)
+
+// PostgresConfig holds the connection details for a test Postgres container.
+type PostgresConfig struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	Database string
+}
+
+// DSN returns the PostgreSQL connection string.
+func (c PostgresConfig) DSN() string {
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.Database)
+}
+
+// OpenTestDB opens a test database connection.
+// It skips the test if DATABASE_URL is not set.
+func OpenTestDB(t *testing.T, dsn string) *sql.DB {
+	t.Helper()
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		t.Skipf("skipping database test: %v", err)
+	}
+	if err := db.PingContext(context.Background()); err != nil {
+		db.Close()
+		t.Skipf("skipping database test: ping failed: %v", err)
+	}
+	t.Cleanup(func() { db.Close() })
+	return db
+}

@@ -1,0 +1,9 @@
+prompts:
+  - key: requests_per_second
+    message: "Maximum requests per second per IP"
+    type: input
+    default: "100"
+  - key: burst
+    message: "Maximum burst size"
+    type: input
+    default: "20"

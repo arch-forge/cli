@@ -1,0 +1,88 @@
+package ratelimit
+
+import (
+	"net"
+	"net/http"
+	"sync"
+	"time"
+)
+
+// bucket implements a simple token-bucket rate limiter per key.
+type bucket struct {
+	tokens     float64
+	maxTokens  float64
+	refillRate float64 // tokens per second
+	lastRefill time.Time
+	mu         sync.Mutex
+}
+
+func newBucket(rps, burst float64) *bucket {
+	return &bucket{
+		tokens:     burst,
+		maxTokens:  burst,
+		refillRate: rps,
+		lastRefill: time.Now(),
+	}
+}
+
+func (b *bucket) allow() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	now := time.Now()
+	elapsed := now.Sub(b.lastRefill).Seconds()
+	b.tokens = min(b.maxTokens, b.tokens+elapsed*b.refillRate)
+	b.lastRefill = now
+	if b.tokens >= 1 {
+		b.tokens--
+		return true
+	}
+	return false
+}
+
+func min(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// Limiter manages per-IP rate limit buckets.
+type Limiter struct {
+	mu      sync.Mutex
+	buckets map[string]*bucket
+	rps     float64
+	burst   float64
+}
+
+// New creates a Limiter with the given requests-per-second and burst size.
+func New(rps, burst float64) *Limiter {
+	return &Limiter{
+		buckets: make(map[string]*bucket),
+		rps:     rps,
+		burst:   burst,
+	}
+}
+
+// Middleware returns an http.Handler middleware that rate-limits by client IP.
+func (l *Limiter) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = r.RemoteAddr
+		}
+
+		l.mu.Lock()
+		b, ok := l.buckets[ip]
+		if !ok {
+			b = newBucket(l.rps, l.burst)
+			l.buckets[ip] = b
+		}
+		l.mu.Unlock()
+
+		if !b.allow() {
+			http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}

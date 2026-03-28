@@ -1,0 +1,42 @@
+name: cache
+version: 1.0.0
+description: "Redis client with cache-aside pattern, TTL management, and connection pooling"
+category: infrastructure
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: true
+
+go_dependencies:
+  - package: github.com/redis/go-redis/v9
+    version: v9.7.1
+
+options:
+  - name: redis_url_env
+    type: string
+    default: "REDIS_URL"
+    description: "Environment variable for Redis connection URL"
+  - name: default_ttl_seconds
+    type: string
+    default: "300"
+    description: "Default cache TTL in seconds"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

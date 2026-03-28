@@ -1,0 +1,13 @@
+prompts:
+  - key: health_path
+    type: input
+    message: "Health endpoint path"
+    default: "/health"
+  - key: ready_path
+    type: input
+    message: "Readiness endpoint path"
+    default: "/ready"
+  - key: live_path
+    type: input
+    message: "Liveness endpoint path"
+    default: "/live"

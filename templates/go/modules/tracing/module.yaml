@@ -1,0 +1,46 @@
+name: tracing
+version: 1.0.0
+description: "OpenTelemetry distributed tracing with OTLP exporter and HTTP middleware"
+category: observability
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: false
+
+go_dependencies:
+  - package: go.opentelemetry.io/otel
+    version: v1.28.0
+  - package: go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
+    version: v1.28.0
+  - package: go.opentelemetry.io/otel/sdk
+    version: v1.28.0
+
+options:
+  - name: service_name_env
+    type: string
+    default: "SERVICE_NAME"
+    description: "Environment variable for the service name reported to the tracing backend"
+  - name: otlp_endpoint_env
+    type: string
+    default: "OTLP_ENDPOINT"
+    description: "Environment variable for the OTLP collector endpoint"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

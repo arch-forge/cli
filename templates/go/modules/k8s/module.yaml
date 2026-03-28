@@ -1,0 +1,39 @@
+name: k8s
+version: 1.0.0
+description: "Kubernetes manifests: Deployment, Service, Ingress, HPA, and ConfigMap"
+category: devops
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: docker
+    required: true
+
+go_dependencies: []
+
+options:
+  - name: namespace
+    type: string
+    default: "default"
+    description: "Kubernetes namespace"
+  - name: replicas
+    type: string
+    default: "2"
+    description: "Initial replica count"
+  - name: image_repo
+    type: string
+    default: ""
+    description: "Container image repository (e.g. ghcr.io/org/app)"
+
+patches: []

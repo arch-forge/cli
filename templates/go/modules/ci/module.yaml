@@ -1,0 +1,36 @@
+name: ci
+version: 1.0.0
+description: "CI/CD pipeline configuration for GitHub Actions, GitLab CI, or Bitbucket Pipelines"
+category: devops
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: docker
+    required: false
+
+go_dependencies: []
+
+options:
+  - name: provider
+    type: select
+    values: [github, gitlab, bitbucket]
+    default: github
+    description: "CI provider"
+  - name: go_version
+    type: string
+    default: "1.23"
+    description: "Go version for CI pipeline"
+
+patches: []

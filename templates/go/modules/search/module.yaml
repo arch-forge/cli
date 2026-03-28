@@ -1,0 +1,41 @@
+name: search
+version: 1.0.0
+description: "Full-text search client supporting Elasticsearch and Meilisearch"
+category: infrastructure
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies:
+  - name: logging
+    required: false
+
+go_dependencies: []
+
+options:
+  - name: backend
+    type: select
+    values: [elasticsearch, meilisearch]
+    default: meilisearch
+    description: "Search backend"
+  - name: search_url_env
+    type: string
+    default: "SEARCH_URL"
+    description: "Environment variable for search service URL"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

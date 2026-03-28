@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Project.Name }}
+  namespace: {{ index .Options "namespace" | default "default" }}
+  labels:
+    app: {{ .Project.Name }}
+spec:
+  replicas: {{ index .Options "replicas" | default "2" }}
+  selector:
+    matchLabels:
+      app: {{ .Project.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Project.Name }}
+    spec:
+      containers:
+        - name: {{ .Project.Name }}
+          image: {{ index .Options "image_repo" | default "your-registry/your-image" }}:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: HTTP_PORT
+              value: "8080"
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

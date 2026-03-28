@@ -1,0 +1,49 @@
+package grpc
+
+import (
+	"fmt"
+	"log/slog"
+	"net"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+)
+
+// Server wraps a gRPC server instance.
+type Server struct {
+	port   int
+	server *grpc.Server
+	logger *slog.Logger
+}
+
+// New creates a new gRPC Server with standard interceptors.
+func New(port int, logger *slog.Logger) *Server {
+	srv := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			loggingInterceptor(logger),
+			recoveryInterceptor(logger),
+		),
+	)
+	reflection.Register(srv)
+	return &Server{port: port, server: srv, logger: logger}
+}
+
+// GRPCServer returns the underlying *grpc.Server for service registration.
+func (s *Server) GRPCServer() *grpc.Server {
+	return s.server
+}
+
+// ListenAndServe starts the gRPC server on the configured port.
+func (s *Server) ListenAndServe() error {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.port))
+	if err != nil {
+		return fmt.Errorf("grpc: listen: %w", err)
+	}
+	s.logger.Info("gRPC server listening", "port", s.port)
+	return s.server.Serve(lis)
+}
+
+// Shutdown gracefully stops the gRPC server.
+func (s *Server) Shutdown() {
+	s.server.GracefulStop()
+}

@@ -1,0 +1,16 @@
+prompts:
+  - key: backend
+    type: select
+    message: "Queue backend"
+    options:
+      - label: "nats (recommended)"
+        value: nats
+      - label: "rabbitmq"
+        value: rabbitmq
+      - label: "memory (in-process, testing only)"
+        value: memory
+    default: nats
+  - key: queue_url_env
+    type: input
+    message: "Environment variable name for queue URL"
+    default: "QUEUE_URL"

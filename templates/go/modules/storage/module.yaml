@@ -1,0 +1,39 @@
+name: storage
+version: 1.0.0
+description: "Object storage client supporting S3, GCS, and local filesystem backends"
+category: infrastructure
+
+architectures:
+  - hexagonal
+  - clean
+  - standard
+  - ddd
+  - cqrs
+  - microservice
+  - modular_monolith
+
+variants:
+  - classic
+  - modular
+
+dependencies: []
+
+go_dependencies: []
+
+options:
+  - name: backend
+    type: select
+    values: [s3, gcs, local]
+    default: local
+    description: "Storage backend"
+  - name: bucket_env
+    type: string
+    default: "STORAGE_BUCKET"
+    description: "Environment variable for bucket/container name"
+
+patches:
+  - target: "cmd/*/main.go"
+    action: inject_after
+    anchor: "arch_forge:providers"
+    template: "hooks/main.go.tmpl"
+    optional: true

@@ -1,0 +1,23 @@
+image: golang:{{ .GoVersion }}-alpine
+
+stages:
+  - test
+  - build
+
+variables:
+  CGO_ENABLED: "0"
+
+test:
+  stage: test
+  script:
+    - go mod download
+    - go test ./... -race -coverprofile=coverage.out
+  coverage: '/coverage: \d+\.\d+%/'
+
+build:
+  stage: build
+  script:
+    - go build -o bin/{{ .Project.Name }} ./cmd/...
+  artifacts:
+    paths:
+      - bin/

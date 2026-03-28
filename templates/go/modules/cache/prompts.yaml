@@ -1,0 +1,9 @@
+prompts:
+  - key: redis_url_env
+    type: input
+    message: "Environment variable name for Redis URL"
+    default: "REDIS_URL"
+  - key: default_ttl_seconds
+    type: input
+    message: "Default cache TTL (seconds)"
+    default: "300"

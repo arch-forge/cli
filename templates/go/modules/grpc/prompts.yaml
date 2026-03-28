@@ -1,0 +1,9 @@
+prompts:
+  - key: grpc_port
+    type: input
+    message: "gRPC server port"
+    default: "50051"
+  - key: service_name
+    type: input
+    message: "Service name (PascalCase)"
+    default: "AppService"

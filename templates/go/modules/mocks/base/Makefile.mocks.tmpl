@@ -1,0 +1,11 @@
+# Mock generation targets — include in your main Makefile or run directly.
+
+.PHONY: mocks mocks-clean
+
+## mocks: Regenerate all mocks using mockery
+mocks:
+	go run github.com/vektra/mockery/v2@latest
+
+## mocks-clean: Remove all generated mock files
+mocks-clean:
+	find . -name "mock_*.go" -not -path "*/vendor/*" -delete
