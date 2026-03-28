@@ -1,0 +1,21 @@
+package domain
+
+import "time"
+
+// PaymentStatus represents the state of a payment.
+type PaymentStatus string
+
+const (
+	PaymentStatusPending   PaymentStatus = "pending"
+	PaymentStatusCompleted PaymentStatus = "completed"
+	PaymentStatusFailed    PaymentStatus = "failed"
+)
+
+// Payment represents the Payments module's aggregate root.
+type Payment struct {
+	ID        string
+	OrderID   string
+	Amount    float64
+	Status    PaymentStatus
+	CreatedAt time.Time
+}

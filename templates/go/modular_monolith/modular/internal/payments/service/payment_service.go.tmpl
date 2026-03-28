@@ -1,0 +1,33 @@
+package service
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/payments/domain"
+)
+
+// Repository is the persistence contract for the payments module.
+type Repository interface {
+	FindByID(ctx context.Context, id string) (*domain.Payment, error)
+	Save(ctx context.Context, payment *domain.Payment) error
+}
+
+// PaymentService orchestrates payment operations within the module boundary.
+type PaymentService struct {
+	repo Repository
+}
+
+// NewPaymentService creates a PaymentService with the given repository.
+func NewPaymentService(repo Repository) *PaymentService {
+	return &PaymentService{repo: repo}
+}
+
+// GetPayment retrieves a payment by ID.
+func (s *PaymentService) GetPayment(ctx context.Context, id string) (*domain.Payment, error) {
+	p, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get payment: %w", err)
+	}
+	return p, nil
+}

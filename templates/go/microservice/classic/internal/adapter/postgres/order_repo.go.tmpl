@@ -1,0 +1,30 @@
+package postgres
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/port"
+)
+
+// orderRepo implements port.OrderRepository using PostgreSQL.
+type orderRepo struct {
+	db *sql.DB
+}
+
+// NewOrderRepo creates a PostgreSQL-backed order repository.
+func NewOrderRepo(db *sql.DB) port.OrderRepository {
+	return &orderRepo{db: db}
+}
+
+func (r *orderRepo) FindByID(ctx context.Context, id string) (*domain.Order, error) {
+	// TODO: implement SELECT query
+	return nil, fmt.Errorf("order %q: %w", id, domain.ErrOrderNotFound)
+}
+
+func (r *orderRepo) Save(ctx context.Context, order *domain.Order) error {
+	// TODO: implement INSERT/UPDATE query
+	return nil
+}

@@ -1,0 +1,29 @@
+package domain
+
+import "time"
+
+// Event is the base interface for all domain events in the orders module.
+type Event interface {
+	EventType() string
+	AggregateID() string
+}
+
+// OrderPlaced is emitted when a new order is placed.
+type OrderPlaced struct {
+	OrderID     string
+	CustomerID  string
+	TotalAmount float64
+	OccurredAt  time.Time
+}
+
+func (e OrderPlaced) EventType() string   { return "order.placed" }
+func (e OrderPlaced) AggregateID() string { return e.OrderID }
+
+// OrderConfirmed is emitted when an order is confirmed.
+type OrderConfirmed struct {
+	OrderID    string
+	OccurredAt time.Time
+}
+
+func (e OrderConfirmed) EventType() string   { return "order.confirmed" }
+func (e OrderConfirmed) AggregateID() string { return e.OrderID }

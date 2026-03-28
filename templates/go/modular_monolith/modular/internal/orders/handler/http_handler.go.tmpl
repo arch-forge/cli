@@ -1,0 +1,34 @@
+package handler
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"{{ .Module }}/internal/orders/service"
+)
+
+// HTTPHandler exposes the orders module over HTTP.
+type HTTPHandler struct {
+	svc *service.OrderService
+}
+
+// NewHTTPHandler creates a new HTTPHandler for the orders module.
+func NewHTTPHandler(svc *service.OrderService) *HTTPHandler {
+	return &HTTPHandler{svc: svc}
+}
+
+// RegisterRoutes registers the module's HTTP routes on mux.
+func (h *HTTPHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /orders/{id}", h.getOrder)
+}
+
+func (h *HTTPHandler) getOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	order, err := h.svc.GetOrder(r.Context(), id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(order)
+}

@@ -1,0 +1,28 @@
+package app
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/port"
+)
+
+// OrderService implements the order use cases.
+type OrderService struct {
+	repo port.OrderRepository
+}
+
+// NewOrderService creates an OrderService with the given repository port.
+func NewOrderService(repo port.OrderRepository) *OrderService {
+	return &OrderService{repo: repo}
+}
+
+// GetOrder retrieves an order by ID.
+func (s *OrderService) GetOrder(ctx context.Context, id string) (*domain.Order, error) {
+	o, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get order: %w", err)
+	}
+	return o, nil
+}

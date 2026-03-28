@@ -1,0 +1,13 @@
+package port
+
+import (
+	"context"
+
+	"{{ .Module }}/internal/domain"
+)
+
+// OrderRepository defines the persistence contract.
+type OrderRepository interface {
+	FindByID(ctx context.Context, id string) (*domain.Order, error)
+	Save(ctx context.Context, order *domain.Order) error
+}

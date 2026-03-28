@@ -1,0 +1,42 @@
+package repository
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"{{ .Module }}/internal/user/model"
+)
+
+// UserRepository defines the contract for user persistence.
+type UserRepository interface {
+	FindByID(ctx context.Context, id string) (*model.User, error)
+	Save(ctx context.Context, user *model.User) error
+}
+
+type inMemoryUserRepository struct {
+	mu    sync.RWMutex
+	store map[string]*model.User
+}
+
+// NewUserRepository creates an in-memory UserRepository.
+func NewUserRepository() UserRepository {
+	return &inMemoryUserRepository{store: make(map[string]*model.User)}
+}
+
+func (r *inMemoryUserRepository) FindByID(_ context.Context, id string) (*model.User, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	u, ok := r.store[id]
+	if !ok {
+		return nil, fmt.Errorf("user %q not found", id)
+	}
+	return u, nil
+}
+
+func (r *inMemoryUserRepository) Save(_ context.Context, user *model.User) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.store[user.ID] = user
+	return nil
+}

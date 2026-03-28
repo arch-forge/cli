@@ -1,0 +1,36 @@
+package http
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"{{ .Module }}/internal/orders/command"
+	"{{ .Module }}/internal/orders/query"
+)
+
+// OrderHandler routes HTTP requests to the appropriate command or query handler.
+type OrderHandler struct {
+	placeOrder *command.PlaceOrderHandler
+	getOrder   *query.GetOrderHandler
+}
+
+// NewOrderHandler creates a new OrderHandler.
+func NewOrderHandler(place *command.PlaceOrderHandler, get *query.GetOrderHandler) *OrderHandler {
+	return &OrderHandler{placeOrder: place, getOrder: get}
+}
+
+// RegisterRoutes registers order routes on the mux.
+func (h *OrderHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /orders/{id}", h.handleGet)
+}
+
+func (h *OrderHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	view, err := h.getOrder.Handle(r.Context(), query.GetOrderQuery{OrderID: id})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(view)
+}

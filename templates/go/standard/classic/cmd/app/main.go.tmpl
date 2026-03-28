@@ -1,0 +1,26 @@
+package main
+
+import (
+	"log"
+	"net/http"
+
+	"{{ .Module }}/internal/handler"
+	"{{ .Module }}/internal/repository"
+	"{{ .Module }}/internal/service"
+)
+
+func main() {
+	repo := repository.NewUserRepository()
+	svc := service.NewUserService(repo)
+	h := handler.NewUserHandler(svc)
+
+	mux := http.NewServeMux()
+	h.RegisterRoutes(mux)
+
+	// arch_forge:routes
+
+	log.Println("Starting server on :8080")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatalf("server error: %v", err)
+	}
+}

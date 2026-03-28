@@ -1,0 +1,39 @@
+package service
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/user/model"
+	"{{ .Module }}/internal/user/repository"
+)
+
+// UserService defines the application logic for user operations.
+type UserService interface {
+	GetUser(ctx context.Context, id string) (*model.User, error)
+	CreateUser(ctx context.Context, user *model.User) error
+}
+
+type userService struct {
+	repo repository.UserRepository
+}
+
+// NewUserService creates a UserService backed by the given repository.
+func NewUserService(repo repository.UserRepository) UserService {
+	return &userService{repo: repo}
+}
+
+func (s *userService) GetUser(ctx context.Context, id string) (*model.User, error) {
+	u, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+	return u, nil
+}
+
+func (s *userService) CreateUser(ctx context.Context, user *model.User) error {
+	if err := s.repo.Save(ctx, user); err != nil {
+		return fmt.Errorf("create user: %w", err)
+	}
+	return nil
+}

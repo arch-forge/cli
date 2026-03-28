@@ -1,0 +1,37 @@
+package domain
+
+import "time"
+
+// Order is the CQRS aggregate root.
+type Order struct {
+	ID          string
+	CustomerID  string
+	Status      string
+	TotalAmount float64
+	CreatedAt   time.Time
+	Version     int // optimistic concurrency
+	events      []Event
+}
+
+// Apply updates the aggregate state from a domain event.
+func (o *Order) Apply(e Event) {
+	switch ev := e.(type) {
+	case OrderPlaced:
+		o.ID = ev.OrderID
+		o.CustomerID = ev.CustomerID
+		o.Status = "pending"
+		o.TotalAmount = ev.TotalAmount
+		o.CreatedAt = ev.OccurredAt
+	case OrderConfirmed:
+		o.Status = "confirmed"
+	}
+	o.Version++
+	o.events = append(o.events, e)
+}
+
+// PendingEvents returns uncommitted domain events and resets the buffer.
+func (o *Order) PendingEvents() []Event {
+	evs := o.events
+	o.events = nil
+	return evs
+}

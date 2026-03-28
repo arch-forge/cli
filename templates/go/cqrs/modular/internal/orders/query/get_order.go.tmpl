@@ -1,0 +1,44 @@
+package query
+
+import (
+	"context"
+	"fmt"
+)
+
+// OrderView is the read-model projection for an order.
+type OrderView struct {
+	ID          string  `json:"id"`
+	CustomerID  string  `json:"customer_id"`
+	Status      string  `json:"status"`
+	TotalAmount float64 `json:"total_amount"`
+	CreatedAt   string  `json:"created_at"`
+}
+
+// OrderReadRepository defines the read-side persistence contract.
+type OrderReadRepository interface {
+	FindByID(ctx context.Context, id string) (*OrderView, error)
+}
+
+// GetOrderQuery carries the query parameters.
+type GetOrderQuery struct {
+	OrderID string
+}
+
+// GetOrderHandler processes the GetOrderQuery.
+type GetOrderHandler struct {
+	repo OrderReadRepository
+}
+
+// NewGetOrderHandler creates a handler for the GetOrderQuery.
+func NewGetOrderHandler(repo OrderReadRepository) *GetOrderHandler {
+	return &GetOrderHandler{repo: repo}
+}
+
+// Handle executes the get-order query and returns the read-model view.
+func (h *GetOrderHandler) Handle(ctx context.Context, q GetOrderQuery) (*OrderView, error) {
+	view, err := h.repo.FindByID(ctx, q.OrderID)
+	if err != nil {
+		return nil, fmt.Errorf("get order: %w", err)
+	}
+	return view, nil
+}

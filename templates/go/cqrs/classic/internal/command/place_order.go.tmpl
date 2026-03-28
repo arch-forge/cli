@@ -1,0 +1,48 @@
+package command
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"{{ .Module }}/internal/domain"
+)
+
+// PlaceOrderCommand carries the intent to place a new order.
+type PlaceOrderCommand struct {
+	OrderID     string
+	CustomerID  string
+	TotalAmount float64
+}
+
+// OrderWriteRepository defines the write-side persistence contract.
+type OrderWriteRepository interface {
+	Load(ctx context.Context, id string) (*domain.Order, error)
+	Save(ctx context.Context, order *domain.Order, events []domain.Event) error
+}
+
+// PlaceOrderHandler processes the PlaceOrderCommand.
+type PlaceOrderHandler struct {
+	repo OrderWriteRepository
+}
+
+// NewPlaceOrderHandler creates a handler for the PlaceOrderCommand.
+func NewPlaceOrderHandler(repo OrderWriteRepository) *PlaceOrderHandler {
+	return &PlaceOrderHandler{repo: repo}
+}
+
+// Handle validates and executes the place-order command.
+func (h *PlaceOrderHandler) Handle(ctx context.Context, cmd PlaceOrderCommand) error {
+	order := &domain.Order{}
+	order.Apply(domain.OrderPlaced{
+		OrderID:     cmd.OrderID,
+		CustomerID:  cmd.CustomerID,
+		TotalAmount: cmd.TotalAmount,
+		OccurredAt:  time.Now().UTC(),
+	})
+	events := order.PendingEvents()
+	if err := h.repo.Save(ctx, order, events); err != nil {
+		return fmt.Errorf("place order: %w", err)
+	}
+	return nil
+}
