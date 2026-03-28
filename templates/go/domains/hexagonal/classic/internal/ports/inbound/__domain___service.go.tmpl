@@ -1,0 +1,13 @@
+package inbound
+
+import (
+	"context"
+
+	"{{ .Module }}/internal/domain"
+)
+
+// {{ pascalCase .DomainName }}Service is the inbound port defining use cases.
+type {{ pascalCase .DomainName }}Service interface {
+	Get{{ pascalCase .DomainName }}(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error)
+	Create{{ pascalCase .DomainName }}(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error
+}

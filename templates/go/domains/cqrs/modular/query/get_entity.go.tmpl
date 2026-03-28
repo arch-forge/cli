@@ -1,0 +1,17 @@
+package query
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/{{ .Paths.Domain }}"
+)
+
+// Get{{ pascalCase .DomainName }}Query handles the get query.
+type Get{{ pascalCase .DomainName }}Query struct{}
+
+// Handle processes the get query.
+func (q *Get{{ pascalCase .DomainName }}Query) Handle(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	_ = ctx
+	return nil, fmt.Errorf("{{ .DomainName }} %q not found", id)
+}

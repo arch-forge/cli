@@ -1,0 +1,8 @@
+package domain
+
+import "errors"
+
+var (
+	Err{{ pascalCase .DomainName }}NotFound = errors.New("{{ .DomainName }} not found")
+	Err{{ pascalCase .DomainName }}Invalid  = errors.New("{{ .DomainName }} is invalid")
+)

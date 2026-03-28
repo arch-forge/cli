@@ -1,0 +1,20 @@
+package http
+
+import (
+	"net/http"
+)
+
+// {{ pascalCase .DomainName }}Handler handles HTTP requests.
+type {{ pascalCase .DomainName }}Handler struct{}
+
+// New{{ pascalCase .DomainName }}Handler constructs the handler.
+func New{{ pascalCase .DomainName }}Handler() *{{ pascalCase .DomainName }}Handler {
+	return &{{ pascalCase .DomainName }}Handler{}
+}
+
+// RegisterRoutes registers routes on the mux.
+func (h *{{ pascalCase .DomainName }}Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /{{ .DomainName }}s/{id}", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "not implemented", http.StatusNotImplemented)
+	})
+}

@@ -1,0 +1,37 @@
+package application
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/ports/inbound"
+	"{{ .Module }}/internal/ports/outbound"
+)
+
+type {{ camelCase .DomainName }}Service struct {
+	repo outbound.{{ pascalCase .DomainName }}Repository
+}
+
+// New{{ pascalCase .DomainName }}Service constructs the application service.
+func New{{ pascalCase .DomainName }}Service(repo outbound.{{ pascalCase .DomainName }}Repository) inbound.{{ pascalCase .DomainName }}Service {
+	return &{{ camelCase .DomainName }}Service{repo: repo}
+}
+
+func (s *{{ camelCase .DomainName }}Service) Get{{ pascalCase .DomainName }}(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	e, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get {{ .DomainName }}: %w", err)
+	}
+	return e, nil
+}
+
+func (s *{{ camelCase .DomainName }}Service) Create{{ pascalCase .DomainName }}(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	if err := e.Validate(); err != nil {
+		return fmt.Errorf("create {{ .DomainName }}: %w", err)
+	}
+	if err := s.repo.Save(ctx, e); err != nil {
+		return fmt.Errorf("create {{ .DomainName }}: %w", err)
+	}
+	return nil
+}

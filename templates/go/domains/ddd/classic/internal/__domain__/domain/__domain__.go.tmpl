@@ -1,0 +1,29 @@
+package domain
+
+import "time"
+
+// {{ pascalCase .DomainName }} is a DDD aggregate root.
+type {{ pascalCase .DomainName }} struct {
+	ID        string
+	Status    {{ pascalCase .DomainName }}Status
+	CreatedAt time.Time
+}
+
+// {{ pascalCase .DomainName }}Status represents lifecycle state.
+type {{ pascalCase .DomainName }}Status string
+
+const (
+	{{ pascalCase .DomainName }}StatusPending   {{ pascalCase .DomainName }}Status = "pending"
+	{{ pascalCase .DomainName }}StatusCompleted {{ pascalCase .DomainName }}Status = "completed"
+	{{ pascalCase .DomainName }}StatusCancelled {{ pascalCase .DomainName }}Status = "cancelled"
+)
+
+// Create initializes the aggregate.
+func (e *{{ pascalCase .DomainName }}) Create() error {
+	if e.ID == "" {
+		return Err{{ pascalCase .DomainName }}Invalid
+	}
+	e.Status = {{ pascalCase .DomainName }}StatusPending
+	e.CreatedAt = time.Now().UTC()
+	return nil
+}

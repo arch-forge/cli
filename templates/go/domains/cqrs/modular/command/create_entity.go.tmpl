@@ -1,0 +1,20 @@
+package command
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/{{ .Paths.Domain }}"
+)
+
+// Create{{ pascalCase .DomainName }}Command handles the create command.
+type Create{{ pascalCase .DomainName }}Command struct{}
+
+// Handle processes the create command.
+func (c *Create{{ pascalCase .DomainName }}Command) Handle(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	_ = ctx
+	if e.ID == "" {
+		return fmt.Errorf("{{ .DomainName }} id is required")
+	}
+	return nil
+}

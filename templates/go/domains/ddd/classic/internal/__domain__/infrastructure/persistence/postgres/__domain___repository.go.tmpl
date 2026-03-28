@@ -1,0 +1,33 @@
+package postgres
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+
+	"{{ .Module }}/internal/{{ .DomainName }}/domain"
+)
+
+type {{ camelCase .DomainName }}Repository struct {
+	db *sql.DB
+}
+
+// New{{ pascalCase .DomainName }}Repository constructs the repository.
+func New{{ pascalCase .DomainName }}Repository(db *sql.DB) domain.{{ pascalCase .DomainName }}Repository {
+	return &{{ camelCase .DomainName }}Repository{db: db}
+}
+
+func (r *{{ camelCase .DomainName }}Repository) FindByID(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	// TODO: implement SELECT query
+	return nil, fmt.Errorf("{{ .DomainName }} %q: %w", id, domain.Err{{ pascalCase .DomainName }}NotFound)
+}
+
+func (r *{{ camelCase .DomainName }}Repository) Save(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	// TODO: implement INSERT/UPDATE query
+	return nil
+}
+
+func (r *{{ camelCase .DomainName }}Repository) Delete(ctx context.Context, id string) error {
+	// TODO: implement DELETE query
+	return nil
+}

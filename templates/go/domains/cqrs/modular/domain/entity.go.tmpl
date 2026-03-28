@@ -1,0 +1,16 @@
+package domain
+
+import "time"
+
+// {{ pascalCase .DomainName }} is the CQRS aggregate root.
+type {{ pascalCase .DomainName }} struct {
+	ID        string
+	CreatedAt time.Time
+	Events    []Event
+}
+
+// Event represents a domain event.
+type Event struct {
+	Type    string
+	Payload any
+}

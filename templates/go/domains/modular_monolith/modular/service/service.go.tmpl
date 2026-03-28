@@ -1,0 +1,22 @@
+package service
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/{{ .Paths.Domain }}"
+)
+
+// {{ pascalCase .DomainName }}Service handles module business logic.
+type {{ pascalCase .DomainName }}Service struct{}
+
+// New{{ pascalCase .DomainName }}Service constructs the service.
+func New{{ pascalCase .DomainName }}Service() *{{ pascalCase .DomainName }}Service {
+	return &{{ pascalCase .DomainName }}Service{}
+}
+
+// Get retrieves a {{ .DomainName }} by id.
+func (s *{{ pascalCase .DomainName }}Service) Get(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	_ = ctx
+	return nil, fmt.Errorf("{{ .DomainName }} %q not found", id)
+}

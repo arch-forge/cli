@@ -1,0 +1,7 @@
+package domain
+
+const (
+	Event{{ pascalCase .DomainName }}Created   = "{{ .DomainName }}.created"
+	Event{{ pascalCase .DomainName }}Updated   = "{{ .DomainName }}.updated"
+	Event{{ pascalCase .DomainName }}Cancelled = "{{ .DomainName }}.cancelled"
+)

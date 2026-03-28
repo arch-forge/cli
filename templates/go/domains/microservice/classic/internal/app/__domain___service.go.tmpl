@@ -1,0 +1,38 @@
+package app
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/port"
+)
+
+type {{ camelCase .DomainName }}Service struct {
+	repo port.{{ pascalCase .DomainName }}Repository
+}
+
+// New{{ pascalCase .DomainName }}Service constructs the application service.
+func New{{ pascalCase .DomainName }}Service(repo port.{{ pascalCase .DomainName }}Repository) *{{ camelCase .DomainName }}Service {
+	return &{{ camelCase .DomainName }}Service{repo: repo}
+}
+
+// Get retrieves a {{ .DomainName }} by id.
+func (s *{{ camelCase .DomainName }}Service) Get(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	e, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get {{ .DomainName }}: %w", err)
+	}
+	return e, nil
+}
+
+// Create persists a new {{ .DomainName }}.
+func (s *{{ camelCase .DomainName }}Service) Create(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	if e.ID == "" {
+		return fmt.Errorf("create {{ .DomainName }}: %w", domain.Err{{ pascalCase .DomainName }}Invalid)
+	}
+	if err := s.repo.Save(ctx, e); err != nil {
+		return fmt.Errorf("create {{ .DomainName }}: %w", err)
+	}
+	return nil
+}

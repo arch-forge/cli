@@ -1,0 +1,28 @@
+package usecase
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/{{ .Paths.Domain }}"
+	"{{ .Module }}/{{ .Paths.Port }}"
+)
+
+// Get{{ pascalCase .DomainName }}UseCase retrieves a {{ .DomainName }} by ID.
+type Get{{ pascalCase .DomainName }}UseCase struct {
+	repo ports.{{ pascalCase .DomainName }}Repository
+}
+
+// NewGet{{ pascalCase .DomainName }}UseCase constructs the use case.
+func NewGet{{ pascalCase .DomainName }}UseCase(repo ports.{{ pascalCase .DomainName }}Repository) *Get{{ pascalCase .DomainName }}UseCase {
+	return &Get{{ pascalCase .DomainName }}UseCase{repo: repo}
+}
+
+// Execute retrieves the {{ .DomainName }} with the given id.
+func (uc *Get{{ pascalCase .DomainName }}UseCase) Execute(ctx context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	e, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get {{ .DomainName }}: %w", err)
+	}
+	return e, nil
+}

@@ -1,0 +1,37 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/ports/outbound"
+)
+
+type {{ camelCase .DomainName }}Repository struct {
+	mu    sync.RWMutex
+	store map[string]*domain.{{ pascalCase .DomainName }}
+}
+
+// New{{ pascalCase .DomainName }}Repository constructs the repository.
+func New{{ pascalCase .DomainName }}Repository() outbound.{{ pascalCase .DomainName }}Repository {
+	return &{{ camelCase .DomainName }}Repository{store: make(map[string]*domain.{{ pascalCase .DomainName }})}
+}
+
+func (r *{{ camelCase .DomainName }}Repository) FindByID(_ context.Context, id string) (*domain.{{ pascalCase .DomainName }}, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	e, ok := r.store[id]
+	if !ok {
+		return nil, fmt.Errorf("%w: %s", domain.Err{{ pascalCase .DomainName }}NotFound, id)
+	}
+	return e, nil
+}
+
+func (r *{{ camelCase .DomainName }}Repository) Save(_ context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.store[e.ID] = e
+	return nil
+}

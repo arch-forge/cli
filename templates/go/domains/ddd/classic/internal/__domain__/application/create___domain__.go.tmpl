@@ -1,0 +1,29 @@
+package application
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/{{ .DomainName }}/domain"
+)
+
+// Create{{ pascalCase .DomainName }}UseCase handles creation.
+type Create{{ pascalCase .DomainName }}UseCase struct {
+	repo domain.{{ pascalCase .DomainName }}Repository
+}
+
+// NewCreate{{ pascalCase .DomainName }}UseCase constructs the use case.
+func NewCreate{{ pascalCase .DomainName }}UseCase(repo domain.{{ pascalCase .DomainName }}Repository) *Create{{ pascalCase .DomainName }}UseCase {
+	return &Create{{ pascalCase .DomainName }}UseCase{repo: repo}
+}
+
+// Execute creates and persists a new {{ .DomainName }}.
+func (uc *Create{{ pascalCase .DomainName }}UseCase) Execute(ctx context.Context, e *domain.{{ pascalCase .DomainName }}) error {
+	if err := e.Create(); err != nil {
+		return fmt.Errorf("create {{ .DomainName }}: %w", err)
+	}
+	if err := uc.repo.Save(ctx, e); err != nil {
+		return fmt.Errorf("create {{ .DomainName }}: %w", err)
+	}
+	return nil
+}

@@ -1,0 +1,39 @@
+package repository
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"{{ .Module }}/internal/model"
+)
+
+// {{ pascalCase .DomainName }}Repository handles persistence.
+type {{ pascalCase .DomainName }}Repository struct {
+	mu    sync.RWMutex
+	store map[string]*model.{{ pascalCase .DomainName }}
+}
+
+// New{{ pascalCase .DomainName }}Repository constructs the repository.
+func New{{ pascalCase .DomainName }}Repository() *{{ pascalCase .DomainName }}Repository {
+	return &{{ pascalCase .DomainName }}Repository{store: make(map[string]*model.{{ pascalCase .DomainName }})}
+}
+
+// FindByID retrieves by id.
+func (r *{{ pascalCase .DomainName }}Repository) FindByID(_ context.Context, id string) (*model.{{ pascalCase .DomainName }}, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	e, ok := r.store[id]
+	if !ok {
+		return nil, fmt.Errorf("{{ .DomainName }} %q not found", id)
+	}
+	return e, nil
+}
+
+// Save persists a {{ .DomainName }}.
+func (r *{{ pascalCase .DomainName }}Repository) Save(_ context.Context, e *model.{{ pascalCase .DomainName }}) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.store[e.ID] = e
+	return nil
+}

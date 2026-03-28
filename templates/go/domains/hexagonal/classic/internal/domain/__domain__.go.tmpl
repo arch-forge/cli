@@ -1,0 +1,14 @@
+package domain
+
+// {{ pascalCase .DomainName }} is the core domain entity.
+type {{ pascalCase .DomainName }} struct {
+	ID string
+}
+
+// Validate enforces business rules.
+func (e *{{ pascalCase .DomainName }}) Validate() error {
+	if e.ID == "" {
+		return Err{{ pascalCase .DomainName }}Invalid
+	}
+	return nil
+}

@@ -1,0 +1,10 @@
+package domain
+
+import "context"
+
+// {{ pascalCase .DomainName }}Repository defines the persistence contract.
+type {{ pascalCase .DomainName }}Repository interface {
+	FindByID(ctx context.Context, id string) (*{{ pascalCase .DomainName }}, error)
+	Save(ctx context.Context, e *{{ pascalCase .DomainName }}) error
+	Delete(ctx context.Context, id string) error
+}
