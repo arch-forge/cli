@@ -1,0 +1,37 @@
+package postgres
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"{{ .Module }}/internal/user/domain"
+	"{{ .Module }}/internal/user/ports"
+)
+
+type userRepository struct {
+	mu    sync.RWMutex
+	store map[string]*domain.User
+}
+
+// NewUserRepository creates an in-memory repository implementing the ports.UserRepository contract.
+func NewUserRepository() ports.UserRepository {
+	return &userRepository{store: make(map[string]*domain.User)}
+}
+
+func (r *userRepository) FindByID(_ context.Context, id string) (*domain.User, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	u, ok := r.store[id]
+	if !ok {
+		return nil, fmt.Errorf("user %q not found", id)
+	}
+	return u, nil
+}
+
+func (r *userRepository) Save(_ context.Context, user *domain.User) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.store[user.ID] = user
+	return nil
+}

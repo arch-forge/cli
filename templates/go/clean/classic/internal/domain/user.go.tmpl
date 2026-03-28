@@ -1,0 +1,18 @@
+package domain
+
+import "errors"
+
+// User is a core business entity.
+type User struct {
+	ID    string
+	Name  string
+	Email string
+}
+
+// Validate enforces business rules on User.
+func (u *User) Validate() error {
+	if u.Name == "" || u.Email == "" {
+		return errors.New("user name and email are required")
+	}
+	return nil
+}

@@ -1,0 +1,28 @@
+package usecase
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/domain"
+	"{{ .Module }}/internal/ports"
+)
+
+// GetUserUseCase retrieves a user by ID.
+type GetUserUseCase struct {
+	repo ports.UserRepository
+}
+
+// NewGetUserUseCase constructs a GetUserUseCase.
+func NewGetUserUseCase(repo ports.UserRepository) *GetUserUseCase {
+	return &GetUserUseCase{repo: repo}
+}
+
+// Execute retrieves the user with the given id.
+func (uc *GetUserUseCase) Execute(ctx context.Context, id string) (*domain.User, error) {
+	u, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+	return u, nil
+}
