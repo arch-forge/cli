@@ -1,0 +1,10 @@
+package domain
+
+import "context"
+
+// OrderRepository defines the persistence contract for the Order aggregate.
+type OrderRepository interface {
+	FindByID(ctx context.Context, id string) (*Order, error)
+	Save(ctx context.Context, order *Order) error
+	Delete(ctx context.Context, id string) error
+}

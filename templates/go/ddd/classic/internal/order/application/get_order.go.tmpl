@@ -1,0 +1,27 @@
+package application
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/order/domain"
+)
+
+// GetOrderUseCase retrieves an order by ID.
+type GetOrderUseCase struct {
+	repo domain.OrderRepository
+}
+
+// NewGetOrderUseCase constructs a GetOrderUseCase.
+func NewGetOrderUseCase(repo domain.OrderRepository) *GetOrderUseCase {
+	return &GetOrderUseCase{repo: repo}
+}
+
+// Execute retrieves the order with the given id.
+func (uc *GetOrderUseCase) Execute(ctx context.Context, id string) (*domain.Order, error) {
+	o, err := uc.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("get order: %w", err)
+	}
+	return o, nil
+}

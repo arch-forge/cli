@@ -1,0 +1,49 @@
+package domain
+
+import "time"
+
+// Order is a DDD aggregate root.
+type Order struct {
+	ID         string
+	CustomerID string
+	Items      []OrderItem
+	Status     OrderStatus
+	PlacedAt   time.Time
+}
+
+// OrderItem is a value object within the Order aggregate.
+type OrderItem struct {
+	ProductID string
+	Quantity  int
+	UnitPrice float64
+}
+
+// OrderStatus represents the lifecycle state of an order.
+type OrderStatus string
+
+const (
+	OrderStatusPending   OrderStatus = "pending"
+	OrderStatusConfirmed OrderStatus = "confirmed"
+	OrderStatusShipped   OrderStatus = "shipped"
+	OrderStatusDelivered OrderStatus = "delivered"
+	OrderStatusCancelled OrderStatus = "cancelled"
+)
+
+// Place transitions the order into pending status.
+func (o *Order) Place() error {
+	if len(o.Items) == 0 {
+		return ErrOrderEmpty
+	}
+	o.Status = OrderStatusPending
+	o.PlacedAt = time.Now().UTC()
+	return nil
+}
+
+// Confirm transitions a pending order to confirmed.
+func (o *Order) Confirm() error {
+	if o.Status != OrderStatusPending {
+		return ErrInvalidTransition
+	}
+	o.Status = OrderStatusConfirmed
+	return nil
+}

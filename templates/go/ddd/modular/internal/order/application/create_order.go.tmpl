@@ -1,0 +1,29 @@
+package application
+
+import (
+	"context"
+	"fmt"
+
+	"{{ .Module }}/internal/order/domain"
+)
+
+// CreateOrderUseCase handles order creation.
+type CreateOrderUseCase struct {
+	repo domain.OrderRepository
+}
+
+// NewCreateOrderUseCase constructs a CreateOrderUseCase.
+func NewCreateOrderUseCase(repo domain.OrderRepository) *CreateOrderUseCase {
+	return &CreateOrderUseCase{repo: repo}
+}
+
+// Execute creates and persists a new order.
+func (uc *CreateOrderUseCase) Execute(ctx context.Context, order *domain.Order) error {
+	if err := order.Place(); err != nil {
+		return fmt.Errorf("create order: %w", err)
+	}
+	if err := uc.repo.Save(ctx, order); err != nil {
+		return fmt.Errorf("create order: %w", err)
+	}
+	return nil
+}

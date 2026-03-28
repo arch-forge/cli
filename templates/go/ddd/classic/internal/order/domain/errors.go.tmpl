@@ -1,0 +1,9 @@
+package domain
+
+import "errors"
+
+var (
+	ErrOrderNotFound     = errors.New("order not found")
+	ErrOrderEmpty        = errors.New("order must have at least one item")
+	ErrInvalidTransition = errors.New("invalid order status transition")
+)
