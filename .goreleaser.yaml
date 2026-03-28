@@ -25,7 +25,7 @@ archives:
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
     files:
       - README.md
       - LICENSE
@@ -118,13 +118,13 @@ brews:
     install: |
       bin.install "arch_forge"
 
-scoop:
-  repository:
-    owner: arch-forge
-    name: scoop-bucket
-    branch: main
-    token: "{{ .Env.SCOOP_BUCKET_TOKEN }}"
-  directory: bucket
-  homepage: "https://github.com/arch-forge/cli"
-  description: "Generate Go project structures based on proven architectural patterns"
-  license: MIT
+scoops:
+  - repository:
+      owner: arch-forge
+      name: scoop-bucket
+      branch: main
+      token: "{{ .Env.SCOOP_BUCKET_TOKEN }}"
+    directory: bucket
+    homepage: "https://github.com/arch-forge/cli"
+    description: "Generate Go project structures based on proven architectural patterns"
+    license: MIT

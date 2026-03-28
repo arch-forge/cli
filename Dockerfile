@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 ARG VERSION=dev
 RUN CGO_ENABLED=0 go build \
-    -ldflags="-s -w -X github.com/archforge/cli/internal/adapter/cli.Version=${VERSION}" \
+    -ldflags="-s -w -X github.com/arch-forge/cli/internal/adapter/cli.Version=${VERSION}" \
     -o /bin/arch_forge ./cmd/archforge
 
 # Runtime stage
