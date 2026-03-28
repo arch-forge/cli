@@ -1,0 +1,130 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: arch_forge
+    main: ./cmd/archforge
+    binary: arch_forge
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/arch-forge/cli/internal/adapter/cli.Version={{.Version}}
+
+archives:
+  - id: arch_forge
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+      - docs/**
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+release:
+  github:
+    owner: arch-forge
+    name: arch_forge
+  draft: false
+  prerelease: auto
+  name_template: "{{.Tag}}"
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: "New Features"
+      regexp: "^feat"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^fix"
+      order: 1
+    - title: "Documentation"
+      regexp: "^docs"
+      order: 2
+    - title: "Other"
+      order: 999
+  filters:
+    exclude:
+      - "^chore:"
+      - "^test:"
+      - "^ci:"
+      - "Merge pull request"
+
+dockers:
+  - image_templates:
+      - "arch-forge/cli:{{ .Version }}-amd64"
+      - "ghcr.io/arch-forge/cli:{{ .Version }}-amd64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=VERSION={{ .Version }}"
+    goarch: amd64
+    goos: linux
+
+  - image_templates:
+      - "arch-forge/cli:{{ .Version }}-arm64"
+      - "ghcr.io/arch-forge/cli:{{ .Version }}-arm64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=VERSION={{ .Version }}"
+    goarch: arm64
+    goos: linux
+
+docker_manifests:
+  - name_template: "arch-forge/cli:{{ .Version }}"
+    image_templates:
+      - "arch-forge/cli:{{ .Version }}-amd64"
+      - "arch-forge/cli:{{ .Version }}-arm64"
+  - name_template: "arch-forge/cli:latest"
+    image_templates:
+      - "arch-forge/cli:{{ .Version }}-amd64"
+      - "arch-forge/cli:{{ .Version }}-arm64"
+  - name_template: "ghcr.io/arch-forge/cli:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/arch-forge/cli:{{ .Version }}-amd64"
+      - "ghcr.io/arch-forge/cli:{{ .Version }}-arm64"
+
+brews:
+  - name: arch-forge
+    repository:
+      owner: arch-forge
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/arch-forge/cli"
+    description: "Generate Go project structures based on proven architectural patterns"
+    license: "MIT"
+    test: |
+      system "#{bin}/arch_forge", "--version"
+    install: |
+      bin.install "arch_forge"
+
+scoop:
+  repository:
+    owner: arch-forge
+    name: scoop-bucket
+    branch: main
+    token: "{{ .Env.SCOOP_BUCKET_TOKEN }}"
+  directory: bucket
+  homepage: "https://github.com/arch-forge/cli"
+  description: "Generate Go project structures based on proven architectural patterns"
+  license: MIT
